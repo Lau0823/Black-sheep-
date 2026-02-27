@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+/* En v4, para configurar el fondo puedes usar CSS estándar */
+/* o usar @theme si quieres extender Tailwind */
+
+body {
+  background-color: white;;
+  color: white;
+  font-family: Arial, Helvetica, sans-serif;
+}
