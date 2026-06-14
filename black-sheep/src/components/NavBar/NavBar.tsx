@@ -25,7 +25,7 @@ export default function Navbar() {
       { href: "/lonuevo", label: "Lo nuevo" },
       { href: "/camisetas", label: "Camisetas" },
       { href: "/hoodies", label: "Hoodies" },
-      { href: "/gorras", label: "Gorras" },
+    
       { href: "/buzos", label: "Buzos" },
       { href: "/blog", label: "Blog" },
     ],

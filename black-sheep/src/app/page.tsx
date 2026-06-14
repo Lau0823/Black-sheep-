@@ -8,7 +8,7 @@ type Prod = { id: string; name: string; price: string; img: string; tag?: string
 const featured: Prod[] = [
   { id: "1", name: "Camiseta Oversize", price: "$89.900", tag: "Nuevo", img: "https://i.pinimg.com/1200x/f3/59/a0/f359a020190e3c3d9f6916477249b46b.jpg" },
   { id: "2", name: "Hoodie Street", price: "$215.000", tag: "Top", img: "https://i.pinimg.com/736x/e1/3b/72/e13b724ed479b089b4a389c0dee3e9bc.jpg" },
-  { id: "3", name: "Gorra Classic", price: "$55.000", img: "https://i.pinimg.com/736x/73/58/06/735806f71ff17f99e0ed2e5f4edaf716.jpg" },
+
   { id: "4", name: "Buzo Básico", price: "$129.900", tag: "Drop", img: "https://i.pinimg.com/1200x/ef/2b/8b/ef2b8b59d97b3864ab5f993a56027a59.jpg" },
 ]
 
@@ -70,7 +70,7 @@ function FullScreenCategories() {
     { name: "Camisetas", tag: "01", img: "https://i.pinimg.com/736x/69/4e/51/694e516fd8bd0ab07ba9b3fe5396a03f.jpg" },
     { name: "Hoodies", tag: "02", img: "https://i.pinimg.com/736x/ad/cf/18/adcf18456d4eefea44107c630baed62d.jpg" },
     { name: "Buzos", tag: "03", img: "https://i.pinimg.com/1200x/ef/2b/8b/ef2b8b59d97b3864ab5f993a56027a59.jpg" },
-    { name: "Gorras", tag: "04", img: "https://i.pinimg.com/736x/73/58/06/735806f71ff17f99e0ed2e5f4edaf716.jpg" },
+
   ]
 
   return (
