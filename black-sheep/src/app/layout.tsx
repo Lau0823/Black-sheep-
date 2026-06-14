@@ -11,8 +11,8 @@ const nunito = Nunito({
 });
 
 export const metadata: Metadata = {
-  title: "Chill Pets",
-  description: "E-commerce para tus mascotas 🐾",
+  title: "BLACK SHEEP",
+  description: "Street Wear",
 };
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {

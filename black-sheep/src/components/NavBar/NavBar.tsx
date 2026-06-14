@@ -1,104 +1,274 @@
-"use client";
-import Link from "next/link";
-import { useState } from "react";
-import { ShoppingCart, LogIn, UserPlus } from "lucide-react"; 
-import { FaSearch } from "react-icons/fa";
+"use client"
+
+import Link from "next/link"
+import { useEffect, useMemo, useState } from "react"
+import { usePathname, useRouter } from "next/navigation"
+import { ShoppingCart, LogIn, UserPlus, Menu, X, Search } from "lucide-react"
+
+type NavItem = { href: string; label: string }
+
+function cn(...classes: Array<string | false | undefined | null>) {
+  return classes.filter(Boolean).join(" ")
+}
 
 export default function Navbar() {
-  const [search, setSearch] = useState("");
+  const router = useRouter()
+  const pathname = usePathname()
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    console.log("Buscando:", search);
-  };
+  const [search, setSearch] = useState("")
+  const [openMenu, setOpenMenu] = useState(false)
+  const [openSearch, setOpenSearch] = useState(false)
+  const [scrolled, setScrolled] = useState(false)
+
+  const items: NavItem[] = useMemo(
+    () => [
+      { href: "/lonuevo", label: "Lo nuevo" },
+      { href: "/camisetas", label: "Camisetas" },
+      { href: "/hoodies", label: "Hoodies" },
+      { href: "/gorras", label: "Gorras" },
+      { href: "/buzos", label: "Buzos" },
+      { href: "/blog", label: "Blog" },
+    ],
+    []
+  )
+
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 8)
+    onScroll()
+    window.addEventListener("scroll", onScroll, { passive: true })
+    return () => window.removeEventListener("scroll", onScroll)
+  }, [])
+
+  // Cierra menú al cambiar de ruta
+  useEffect(() => {
+    setOpenMenu(false)
+    setOpenSearch(false)
+  }, [pathname])
+
+  const submitSearch = (e?: React.FormEvent) => {
+    e?.preventDefault()
+    const q = search.trim()
+    if (!q) return
+    router.push(`/search?q=${encodeURIComponent(q)}`)
+  }
 
   return (
-    <nav className="absolute top-0 left-0 w-full z-20 bg-transparent">
-      <div className="w-full flex items-center justify-between h-20 px-8">
-        
-        {/* LOGO + MENÚ */}
-        <div className="flex items-center space-x-8">
-          {/* LOGO */}
-          <Link href="/" className="flex items-center">
+    <header
+      className={cn(
+        "fixed top-0 left-0 right-0 z-50",
+        // Glass premium cuando haces scroll
+        scrolled ? "bg-white/75 backdrop-blur-xl border-b border-black/10" : "bg-transparent"
+      )}
+    >
+      <div className="mx-auto max-w-6xl px-4">
+        <div className="flex h-16 items-center justify-between gap-3">
+          {/* LEFT: Logo */}
+          <Link href="/" className="flex items-center gap-3">
             <img
               src="/bs.png"
-              alt="ChillPets Logo"
-              className="h-32"
+              alt="Black Sheep"
+              className="h-20 w-20 rounded-2xl object-contain"
             />
+            {/* Wordmark premium */}
+            <div className="hidden sm:block leading-none">
+              <div className="text-[12px] font-extrabold uppercase tracking-[0.18em]">
+                BLACK SHEEP
+              </div>
+              <div className="mt-1 text-[10px] font-semibold uppercase tracking-[0.16em] text-black/45">
+                
+              </div>
+            </div>
           </Link>
 
-          {/* MENÚ pegado al logo con subrayado animado */}
-          <ul className="flex space-x-6 text-lg font-medium text-black">
-            {[
-              { href: "/lonuevo", label: "Lo nuevo" },
-              { href: "/camisetas", label: "Camisetas" },
-              { href: "/hoodies", label: "Hoodies" },
-              { href: "/gorras", label: "Gorras" },
-              { href: "/buzos", label: "Buzos" },
-              { href: "/blog", label: "Blog" },
-            ].map((item) => (
-              <li key={item.href}>
-                <Link
-                  href={item.href}
-                  className="relative group hover:pink-500 transition"
-                >
-                  {item.label}
-                  {/* Subrayado animado */}
-                  <span className="absolute left-1/2 -bottom-1 w-0 h-[2px] bg-pink-500 transition-all duration-300 group-hover:w-full group-hover:left-0"></span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </div>
+          {/* CENTER: Menu (desktop) */}
+          <nav className="hidden lg:block">
+            <ul className="flex items-center gap-6">
+              {items.map((item) => {
+                const active = pathname === item.href
+                return (
+                  <li key={item.href}>
+                    <Link
+                      href={item.href}
+                      className={cn(
+                        "relative text-[13px] font-semibold uppercase tracking-[0.12em] transition",
+                        active ? "text-black" : "text-black/65 hover:text-black"
+                      )}
+                    >
+                      {item.label}
+                      <span
+                        className={cn(
+                          "absolute left-0 -bottom-2 h-[2px] w-full rounded-full transition",
+                          active ? "bg-black opacity-100" : "bg-black opacity-0 hover:opacity-100"
+                        )}
+                      />
+                    </Link>
+                  </li>
+                )
+              })}
+            </ul>
+          </nav>
 
-        {/* SEARCH + ICONS */}
-        <div className="flex items-center space-x-6">
-          {/* SEARCH */}
-          <form
-            onSubmit={handleSearch}
-            className="hidden md:flex items-center bg-white/20 rounded-full px-3 py-1"
-          >
-            <FaSearch className="text-black mr-2" />
-            <input
-              type="text"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-              placeholder=""
-              className="bg-transparent placeholder-white text-black focus:outline-none"
-            />
-            <button
-              type="submit"
-              className="bg-pink-500 text-white px-3 py-1 hover:bg-pink-600 rounded-xl"
+          {/* RIGHT: Search + Icons */}
+          <div className="flex items-center gap-2 sm:gap-3">
+            {/* Search desktop */}
+            <form
+              onSubmit={submitSearch}
+              className="hidden md:flex items-center gap-2 rounded-full border border-black/10 bg-white/70 px-3 py-2 backdrop-blur"
             >
-              Buscar
+              <Search size={16} className="text-black/60" />
+              <input
+                value={search}
+                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Buscar…"
+                className="w-44 lg:w-56 bg-transparent text-sm outline-none placeholder:text-black/35"
+              />
+              <button
+                type="submit"
+                className="rounded-full bg-black px-4 py-1.5 text-xs font-semibold text-white hover:bg-black/90"
+              >
+                Buscar
+              </button>
+            </form>
+
+            {/* Search mobile button */}
+            <button
+              onClick={() => setOpenSearch(true)}
+              className="md:hidden grid h-10 w-10 place-items-center rounded-full border border-black/10 bg-white/70 text-black/70 backdrop-blur hover:bg-white"
+              aria-label="Abrir búsqueda"
+              type="button"
+            >
+              <Search size={18} />
             </button>
-          </form>
 
-          {/* CARRITO */}
-          <Link
-            href="/cart"
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 text-black hover:bg-white/40 transition"
-          >
-            <ShoppingCart size={18} />
-          </Link>
+            {/* Icons */}
+            <Link
+              href="/cart"
+              className="grid h-10 w-10 place-items-center rounded-full border border-black/10 bg-white/70 text-black/70 backdrop-blur hover:bg-white"
+              aria-label="Carrito"
+            >
+              <ShoppingCart size={18} />
+            </Link>
 
-          {/* LOGIN */}
-          <Link
-            href="/login"
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 text-black hover:bg-white/40 transition"
-          >
-            <LogIn size={18} />
-          </Link>
+            <Link
+              href="/login"
+              className="hidden sm:grid h-10 w-10 place-items-center rounded-full border border-black/10 bg-white/70 text-black/70 backdrop-blur hover:bg-white"
+              aria-label="Login"
+            >
+              <LogIn size={18} />
+            </Link>
 
-          {/* REGISTRO */}
-          <Link
-            href="/register"
-            className="flex items-center justify-center w-10 h-10 rounded-full bg-white/20 text-black hover:bg-white/40 transition"
-          >
-            <UserPlus size={18} />
-          </Link>
+            <Link
+              href="/register"
+              className="hidden sm:grid h-10 w-10 place-items-center rounded-full border border-black/10 bg-white/70 text-black/70 backdrop-blur hover:bg-white"
+              aria-label="Registro"
+            >
+              <UserPlus size={18} />
+            </Link>
+
+            {/* Mobile menu button */}
+            <button
+              onClick={() => setOpenMenu((v) => !v)}
+              className="lg:hidden grid h-10 w-10 place-items-center rounded-full border border-black/10 bg-white/70 text-black/70 backdrop-blur hover:bg-white"
+              aria-label="Abrir menú"
+              type="button"
+            >
+              {openMenu ? <X size={18} /> : <Menu size={18} />}
+            </button>
+          </div>
         </div>
       </div>
-    </nav>
-  );
+
+      {/* Mobile menu panel */}
+      <div
+        className={cn(
+          "lg:hidden overflow-hidden transition-[max-height,opacity] duration-300",
+          openMenu ? "max-h-[520px] opacity-100" : "max-h-0 opacity-0"
+        )}
+      >
+        <div className="mx-auto max-w-6xl px-4 pb-4">
+          <div className="rounded-3xl border border-black/10 bg-white/85 p-4 backdrop-blur-xl">
+            <div className="grid gap-2">
+              {items.map((item) => {
+                const active = pathname === item.href
+                return (
+                  <Link
+                    key={item.href}
+                    href={item.href}
+                    className={cn(
+                      "flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold uppercase tracking-[0.12em] transition",
+                      active ? "bg-black text-white" : "bg-white text-black/75 hover:bg-black/5"
+                    )}
+                  >
+                    {item.label}
+                    <span className={cn("text-xs", active ? "text-white/80" : "text-black/40")}>→</span>
+                  </Link>
+                )
+              })}
+            </div>
+
+            <div className="mt-3 grid grid-cols-2 gap-2 sm:hidden">
+              <Link
+                href="/login"
+                className="flex items-center justify-center gap-2 rounded-2xl border border-black/10 bg-white px-4 py-3 text-sm font-semibold text-black/70"
+              >
+                <LogIn size={16} /> Login
+              </Link>
+              <Link
+                href="/register"
+                className="flex items-center justify-center gap-2 rounded-2xl bg-black px-4 py-3 text-sm font-semibold text-white"
+              >
+                <UserPlus size={16} /> Registro
+              </Link>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile search overlay */}
+      {openSearch ? (
+        <div className="md:hidden fixed inset-0 z-[60] bg-black/35 backdrop-blur-sm">
+          <div className="mx-auto mt-20 max-w-6xl px-4">
+            <div className="rounded-3xl border border-black/10 bg-white p-4 shadow-xl">
+              <div className="flex items-center justify-between">
+                <p className="text-[11px] font-semibold uppercase tracking-[0.18em] text-black/45">
+                  Buscar productos
+                </p>
+                <button
+                  onClick={() => setOpenSearch(false)}
+                  className="grid h-10 w-10 place-items-center rounded-full border border-black/10 bg-white text-black/70"
+                  aria-label="Cerrar búsqueda"
+                  type="button"
+                >
+                  <X size={18} />
+                </button>
+              </div>
+
+              <form onSubmit={submitSearch} className="mt-3 flex items-center gap-2">
+                <div className="flex w-full items-center gap-2 rounded-2xl border border-black/10 bg-white px-3 py-3">
+                  <Search size={16} className="text-black/50" />
+                  <input
+                    autoFocus
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    placeholder="Camisetas, hoodies, gorras…"
+                    className="w-full bg-transparent text-sm outline-none placeholder:text-black/35"
+                  />
+                </div>
+                <button
+                  type="submit"
+                  className="rounded-2xl bg-black px-5 py-3 text-sm font-semibold text-white"
+                >
+                  Ir
+                </button>
+              </form>
+
+              <p className="mt-3 text-[11px] text-black/45">
+              
+              </p>
+            </div>
+          </div>
+        </div>
+      ) : null}
+    </header>
+  )
 }
